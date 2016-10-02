@@ -18,10 +18,15 @@ import static io.gitbuh.bobjoetom.Util.*;
 public class DisplayScreen extends Screen {
     private float epsilon;
     private int maxIterations;
+    private int amtPixels;
+    private int pixelsCalced=0;
 
+    float rLast = 80f / 255f;
+    float gLast = 196f / 255f;
+    float bLast = 258f / 255f;
 
-
-    ArrayList<Point> points = new ArrayList<Point>();
+    //ArrayList<Point> points = new ArrayList<Point>();
+    float[][] points;
 
     float a;//A and B are complex number C(a+bi)
     float b;
@@ -36,23 +41,27 @@ public class DisplayScreen extends Screen {
         this.maxIterations = maxIterations;
         this.a = a;
         this.b = b;
+        this.amtPixels=(int)(16/(epsilon*epsilon));
+        System.out.println(amtPixels);
+        points = new float[amtPixels][3];
     }
 
     public void render(float delta) {
         if(yPos<2) {
-            for(int i = 0; i < 100000; i++){
-                xPos+=epsilon;
-                if(xPos>=2){
-                    xPos=-2;
-                    yPos+=epsilon;
+            if(pixelsCalced<amtPixels){//TODO get rid of this little fucker
+            for(int i = 0; i < (int)(amtPixels/5); i++) {
+                xPos += epsilon;
+                if (xPos >= 2) {
+                    xPos = -2;
+                    yPos += epsilon;
                 }
                 int iterations = 0;
                 x = xPos;
                 y = yPos;
-                if(a==0&&b==0){//TODO THIS IS FUCKING UP
+                //if (a == 0 && b == 0) {//TODO THIS IS FUCKING UP
                     a = xPos;
                     b = yPos;
-                }
+               // }
                 while (iterations < maxIterations && (x * x) + (b * b) < 4) {
                     float tempX;
                     tempX = x * x - y * y + a;
@@ -60,17 +69,30 @@ public class DisplayScreen extends Screen {
                     x = tempX;
                     iterations++;
                 }
-                if(iterations==maxIterations){
-                    absComplex = (x * x) + (b * b);
-                    points.add(new Point(((xPos + 2) * Main.WIDTH / 4f), ((yPos + 2) * Main.HEIGHT / 4), absComplex));
-                }else{
-                    points.add(new Point(((xPos + 2) * Main.WIDTH / 4f), ((yPos + 2) * Main.HEIGHT / 4), iterations));
+                if (pixelsCalced < amtPixels) {//TODO get rid of this little fucker too
+                    if (iterations == maxIterations) {
+                        absComplex = (x * x) + (b * b);
+                        points[pixelsCalced][0] = ((xPos + 2) * Main.WIDTH / 4f);
+                        points[pixelsCalced][1] = ((yPos + 2) * Main.HEIGHT / 4);
+                        points[pixelsCalced][2] = absComplex;
+                    } else {
+                        points[pixelsCalced][0] = ((xPos + 2) * Main.WIDTH / 4f);
+                        points[pixelsCalced][1] = ((yPos + 2) * Main.HEIGHT / 4);
+                        points[pixelsCalced][2] = iterations;
+                    }
+                    // System.out.println(pixelsCalced + "/"+amtPixels + "=" + ((float)pixelsCalced/(float)amtPixels)*100 + "% Done");
                 }
+                pixelsCalced++;
+                System.out.println( "Percent Overflow: " + (100-((float)pixelsCalced/(float)amtPixels)*100) + "%");
+            }
             }
         }
-        float rLast = 80f / 255f;
-        float gLast = 196f / 255f;
-        float bLast = 258f / 255f;
+        renderPoints();
+    }
+
+    public void renderPoints(){
         drawPoints(points,rLast,gLast,bLast);
+        System.out.println("Rendered");
+
     }
 }

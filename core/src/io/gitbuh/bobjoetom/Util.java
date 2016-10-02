@@ -70,6 +70,18 @@ public class Util {
         }
         shapeRenderer.end();
     }
+    public static void drawPoints(float[][] points,float r, float g, float b){
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for(int i = 0; i < points.length; i++){
+            shapeRenderer.setColor(
+                    (r)*(1f/ points[i][2]),
+                    (g)*(1f/ points[i][2]),
+                    (b)*(1f/ points[i][2]),
+                    1.0f);
+            shapeRenderer.point(points[i][0],points[i][1],0);
+        }
+        shapeRenderer.end();
+    }
 
     public static void drawPoint(Vector2 point, Color color){//Colors constructor (R,G,B,A)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
